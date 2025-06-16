@@ -1,0 +1,50 @@
+model:
+  _target_: models.MobileNetModel
+  num_classes: ${data.num_classes}
+  width_multiplier: 1.0
+  init_weights: true
+experiment:
+  name: deep_pro_experiment_v2
+  seed: 777
+  num_epochs: 100
+  device: cuda
+data:
+  batch_size: 256
+  val_batch_size: 64
+  num_workers: 6
+  num_classes: 15
+  input_size: 48
+training:
+  criterion: crossentropy
+  print_freq: 50
+  deterministic: true
+optimizer:
+  _target_: torch.optim.Adam
+  lr: 0.005
+  weight_decay: 0.005
+  betas:
+  - 0.9
+  - 0.999
+scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  T_max: 100
+  eta_min: 1.0e-05
+logging:
+  use_wandb: true
+  project_name: deep_pro_experiments
+  log_freq: 10
+  save_model: true
+data_preprocessing:
+  normalize:
+    mean:
+    - 0.485
+    - 0.456
+    - 0.406
+    std:
+    - 0.229
+    - 0.224
+    - 0.225
+model_save:
+  save_dir: ./checkpoints
+  save_best: true
+  save_last: true

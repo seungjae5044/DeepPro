@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 from utils.logger import setup_logger
 from utils.data_utils import setup_data_directory, get_data_loaders
+from utils.model_manager import ModelManager
 
 # URL for dataset download
 URL = "https://github.com/JanghunHyeon/AISW4202-Project/releases/download/v.1.1.0/project_dataset.zip"
@@ -115,7 +116,7 @@ def validate(model, valloader, criterion, device):
     return val_loss, val_accuracy
 
 def save_model(model, save_path: str, team_idx: str = "team1"):
-    """Save model using TorchScript"""
+    """Save model using TorchScript (legacy function)"""
     os.makedirs(save_path, exist_ok=True)
     
     model.eval()
@@ -166,6 +167,21 @@ def main(cfg: DictConfig):
     }
     logger.log_hyperparameters(hparams)
     
+    # Initialize model manager
+    model_manager = ModelManager()
+    model_name = cfg.model._target_.split('.')[-1]
+    from datetime import datetime
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    # Convert config to dict for saving
+    config_dict = {
+        'model_config': dict(cfg.model),
+        'optimizer_config': dict(cfg.optimizer),
+        'scheduler_config': dict(cfg.scheduler),
+        'data_config': dict(cfg.data),
+        'experiment_config': dict(cfg.experiment)
+    }
+    
     # Training loop
     best_val_accuracy = 0.0
     best_model_path = None
@@ -199,22 +215,36 @@ def main(cfg: DictConfig):
             f'Val Acc: {val_accuracy:.3f}%'
         )
         
-        # Save best model
+        # Save best model using model manager
         if val_accuracy > best_val_accuracy:
             best_val_accuracy = val_accuracy
             if cfg.model_save.save_best:
-                save_dir = cfg.model_save.get('save_dir', './checkpoints')
-                best_model_path = save_model(model, save_dir, "best")
+                best_model_path = model_manager.save_model_checkpoint(
+                    model=model,
+                    model_name=model_name,
+                    accuracy=val_accuracy,
+                    epoch=epoch,
+                    is_best=True,
+                    timestamp=timestamp,
+                    config=config_dict
+                )
                 logger.logger.info(f'New best model saved: {best_model_path} (Val Acc: {val_accuracy:.3f}%)')
     
     # Final evaluation
     _, final_val_accuracy = validate(model, valloader, criterion, device)
     logger.logger.info(f'Final validation accuracy: {final_val_accuracy:.3f}%')
     
-    # Save final model
+    # Save final model using model manager
     if cfg.model_save.save_last:
-        save_dir = cfg.model_save.get('save_dir', './checkpoints')
-        final_model_path = save_model(model, save_dir, "final")
+        final_model_path = model_manager.save_model_checkpoint(
+            model=model,
+            model_name=model_name,
+            accuracy=final_val_accuracy,
+            epoch=cfg.experiment.num_epochs-1,
+            is_best=False,
+            timestamp=timestamp,
+            config=config_dict
+        )
         logger.logger.info(f'Final model saved: {final_model_path}')
         
         # Save as artifact
@@ -222,10 +252,23 @@ def main(cfg: DictConfig):
         if best_model_path:
             logger.save_model_artifact(best_model_path, "best_model")
     
+    # Show model summary
+    print(f"\n=== Experiment Summary ===")
+    print(f"Model: {model_name}")
+    print(f"Best Validation Accuracy: {best_val_accuracy:.3f}%")
+    
+    # Show global best info
+    global_best = model_manager.get_global_best_info()
+    if global_best:
+        print(f"\n=== Global Best Model ===")
+        print(f"Model: {global_best['model_name']}")
+        print(f"Accuracy: {global_best['accuracy']:.3f}%")
+        print(f"Path: {global_best['model_path']}")
+    
     # Finish logging
     logger.finish()
     
-    print(f'Training completed! Best validation accuracy: {best_val_accuracy:.3f}%')
+    print(f'\nTraining completed! Best validation accuracy: {best_val_accuracy:.3f}%')
 
 if __name__ == "__main__":
     main()

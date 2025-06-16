@@ -1,4 +1,11 @@
-*.log 
-*.tmp
+# Model checkpoints and large files
+checkpoints/*.pt
+*.pt
+wandb/
+outputs/
+__pycache__/
+*.pyc
+# Data files
 *.zip
-*.wandb
+data/
+content/

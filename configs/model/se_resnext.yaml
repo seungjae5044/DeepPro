@@ -1,0 +1,23 @@
+# SE-ResNeXt Hybrid Model Configuration
+_target_: models.se_resnext.SEResNeXtModel
+
+# Model parameters
+num_classes: 15
+cardinality: 8              # ResNeXt groups (병렬 처리)
+base_width: 64              # Base width for grouped conv
+reduction: 16               # SE block reduction ratio
+dropout: 0.5               # Dropout for classifier
+fc_dropout: 0.7            # FC dropout
+channel_multiplier: 2       # 채널 수 증가 배수 (2배로 큰 채널)
+
+# Architecture details:
+# - Pre-activation structure (BN → ReLU → Conv)
+# - ResNeXt: Grouped convolutions for parallel processing
+# - SENet: Channel attention for feature recalibration
+# - Large channels: 512, 1024, 2048 (with multiplier=2)
+# - Strong regularization to prevent overfitting
+# 
+# Channel progression with multiplier=2:
+# Stage 1: 128 → 512 channels
+# Stage 2: 512 → 1024 channels  
+# Stage 3: 1024 → 2048 channels

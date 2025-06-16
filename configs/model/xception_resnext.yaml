@@ -1,0 +1,17 @@
+# Xception + ResNeXt Hybrid Model Configuration
+_target_: models.xception_resnext.XceptionResNeXtModel
+
+# Model parameters
+num_classes: 15
+cardinality: 8          # ResNeXt cardinality (number of groups)
+base_width: 64          # Base width for group convolutions
+dropout: 0.5           # Dropout rate for classifier (강화)
+fc_dropout: 0.7        # Dropout rate for final FC layer (강화)
+
+# Architecture details:
+# - Pre-activation structure (BN → ReLU → Conv)
+# - Hybrid blocks combining:
+#   * ResNeXt: Grouped convolutions for efficiency
+#   * Xception: Depthwise separable convolutions
+# - Residual connections for gradient flow
+# - Progressive channel expansion: 64 → 128 → 256 → 512

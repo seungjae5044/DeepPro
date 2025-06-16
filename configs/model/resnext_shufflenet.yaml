@@ -1,0 +1,16 @@
+# ResNeXt + ShuffleNet Hybrid Model Configuration
+_target_: models.resnext_shufflenet.ResNeXtShuffleNetModel
+
+# Model parameters
+num_classes: 15
+groups: 8              # Number of groups for grouped convolutions
+dropout: 0.5           # Dropout rate for classifier
+fc_dropout: 0.7        # Dropout rate for final FC layer
+
+# Architecture details:
+# - Pre-activation structure (BN → ReLU → Conv)
+# - ResNeXt: Grouped convolutions for parallel processing
+# - ShuffleNet: Channel shuffle for information exchange between groups
+# - Depthwise separable convolutions for efficiency
+# - Residual connections for gradient flow
+# - Progressive channel expansion: 64 → 128 → 256 → 512

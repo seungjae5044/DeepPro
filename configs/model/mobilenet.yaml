@@ -1,0 +1,6 @@
+# @package _global_
+model:
+  _target_: models.MobileNetModel
+  num_classes: ${data.num_classes}
+  width_multiplier: 1.0
+  init_weights: true

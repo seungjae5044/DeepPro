@@ -6,40 +6,26 @@ import os
 from typing import Tuple, Dict, Any
 
 def get_transforms(config: Dict[str, Any]) -> Tuple[transforms.Compose, transforms.Compose]:
-    """Get training and validation transforms"""
+    """Get training and validation transforms (no augmentation)"""
     
-    aug_config = config.get('augmentation', {})
+    # Get preprocessing config (normalization only)
+    prep_config = config.get('data_preprocessing', {})
     
-    # Training transforms with augmentation
-    train_transforms = [
-        transforms.RandomHorizontalFlip(p=aug_config.get('random_horizontal_flip', 0.5)),
-        transforms.RandomRotation(degrees=aug_config.get('random_rotation', 10)),
-        transforms.ToTensor(),
-    ]
+    # Both training and validation use same transforms (no augmentation)
+    base_transforms = [transforms.ToTensor()]
     
     # Add normalization if specified
-    if 'normalize' in aug_config:
-        norm_config = aug_config['normalize']
-        train_transforms.append(
+    if 'normalize' in prep_config:
+        norm_config = prep_config['normalize']
+        base_transforms.append(
             transforms.Normalize(
                 mean=norm_config.get('mean', [0.485, 0.456, 0.406]),
                 std=norm_config.get('std', [0.229, 0.224, 0.225])
             )
         )
     
-    # Validation transforms (no augmentation)
-    val_transforms = [transforms.ToTensor()]
-    if 'normalize' in aug_config:
-        norm_config = aug_config['normalize']
-        val_transforms.append(
-            transforms.Normalize(
-                mean=norm_config.get('mean', [0.485, 0.456, 0.406]),
-                std=norm_config.get('std', [0.229, 0.224, 0.225])
-            )
-        )
-    
-    transform_train = transforms.Compose(train_transforms)
-    transform_val = transforms.Compose(val_transforms)
+    transform_train = transforms.Compose(base_transforms)
+    transform_val = transforms.Compose(base_transforms)
     
     return transform_train, transform_val
 

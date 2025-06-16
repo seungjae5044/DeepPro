@@ -75,7 +75,7 @@ class WandbLogger:
             experiment_name = self.config.get('experiment', {}).get('name', 'experiment')
             
             self.run = wandb.init(
-                project=f"{self.project_name}",
+                project="DeeplearningProgramming",
                 config=self.config,
                 name=f"{experiment_name}_{model_name}",
                 tags=[

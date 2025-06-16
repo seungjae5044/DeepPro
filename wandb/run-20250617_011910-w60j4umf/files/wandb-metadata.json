@@ -1,0 +1,43 @@
+{
+  "os": "Linux-5.15.0-134-generic-x86_64-with-glibc2.31",
+  "python": "CPython 3.13.2",
+  "startedAt": "2025-06-16T13:19:10.990293Z",
+  "program": "/workspace/DeepPro/final/train.py",
+  "codePath": "train.py",
+  "git": {
+    "remote": "https://github.com/seungjae5044/DeepPro.git",
+    "commit": "db5cbca44195d73618c4ec4f17823c1dcd672f80"
+  },
+  "email": "20221068@edu.hanbat.ac.kr",
+  "root": "/workspace/DeepPro/final",
+  "host": "3d7faae6ecc2",
+  "executable": "/opt/conda/envs/pro/bin/python",
+  "codePathLocal": "train.py",
+  "cpu_count": 96,
+  "cpu_count_logical": 96,
+  "gpu": "NVIDIA RTX A6000",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "3778773131264",
+      "used": "3256533315584"
+    }
+  },
+  "memory": {
+    "total": "540667531264"
+  },
+  "cpu": {
+    "count": 96,
+    "countLogical": 96
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA RTX A6000",
+      "memoryTotal": "51527024640",
+      "cudaCores": 10752,
+      "architecture": "Ampere",
+      "uuid": "GPU-b400ee1b-281a-4c8f-4b15-e8a24fbcdb3b"
+    }
+  ],
+  "cudaVersion": "12.2"
+}

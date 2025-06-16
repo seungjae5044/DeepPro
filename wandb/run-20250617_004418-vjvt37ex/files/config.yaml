@@ -1,0 +1,78 @@
+_wandb:
+    value:
+        cli_version: 0.20.1
+        m: []
+        python_version: 3.13.2
+        t:
+            "1":
+                - 1
+                - 41
+                - 50
+            "2":
+                - 1
+                - 41
+                - 50
+            "3":
+                - 1
+                - 2
+                - 13
+                - 15
+                - 16
+                - 55
+                - 61
+            "4": 3.13.2
+            "5": 0.20.1
+            "12": 0.20.1
+            "13": linux-x86_64
+batch_size:
+    value: 256
+data:
+    value:
+        batch_size: 256
+        input_size: 48
+        num_classes: 15
+        num_workers: 6
+        val_batch_size: 64
+data_preprocessing:
+    value:
+        normalize:
+            mean:
+                - 0.485
+                - 0.456
+                - 0.406
+            std:
+                - 0.229
+                - 0.224
+                - 0.225
+experiment:
+    value:
+        device: cuda
+        name: deep_pro_experiment_v2
+        num_epochs: 100
+        seed: 777
+learning_rate:
+    value: 0.005
+logging:
+    value:
+        log_freq: 10
+        project_name: deep_pro_experiments
+        save_model: true
+        use_wandb: true
+model:
+    value: BaselineModel
+model_save:
+    value:
+        save_best: true
+        save_dir: ./checkpoints
+        save_last: true
+num_epochs:
+    value: 100
+optimizer:
+    value: Adam
+scheduler:
+    value: CosineAnnealingLR
+training:
+    value:
+        criterion: crossentropy
+        deterministic: true
+        print_freq: 50
