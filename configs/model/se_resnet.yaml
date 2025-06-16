@@ -1,0 +1,8 @@
+# @package _global_
+model:
+  _target_: models.se_resnet.SEResNetModel
+  num_classes: ${data.num_classes}
+  init_weights: true
+  reduction: 16
+  dropout: 0.3
+  fc_dropout: 0.5

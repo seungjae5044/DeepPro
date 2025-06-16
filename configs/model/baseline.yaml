@@ -1,0 +1,5 @@
+# @package _global_
+model:
+  _target_: models.baseline.BaselineModel
+  num_classes: ${data.num_classes}
+  init_weights: true
