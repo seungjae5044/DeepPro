@@ -1,0 +1,85 @@
+_wandb:
+    value:
+        cli_version: 0.20.1
+        m: []
+        python_version: 3.11.0
+        t:
+            "1":
+                - 1
+                - 41
+                - 50
+            "2":
+                - 1
+                - 41
+                - 50
+            "3":
+                - 13
+                - 15
+                - 16
+                - 55
+            "4": 3.11.0
+            "5": 0.20.1
+            "12": 0.20.1
+            "13": linux-x86_64
+augmentation:
+    value:
+        normalize:
+            mean:
+                - 0.485
+                - 0.456
+                - 0.406
+            std:
+                - 0.229
+                - 0.224
+                - 0.225
+        random_horizontal_flip: 0.5
+        random_rotation: 10
+data:
+    value:
+        batch_size: 256
+        input_size: 48
+        num_classes: 15
+        num_workers: 6
+        val_batch_size: 64
+experiment:
+    value:
+        device: cuda
+        name: deep_pro_experiment
+        num_epochs: 200
+        seed: 777
+logging:
+    value:
+        log_freq: 10
+        project_name: deep_pro_experiments
+        save_model: true
+        use_wandb: true
+model:
+    value:
+        _target_: models.inception_resnet.InceptionResNetModel
+        dropout: 0.3
+        fc_dropout: 0.5
+        init_weights: true
+        num_classes: 15
+model_save:
+    value:
+        save_best: true
+        save_dir: ./checkpoints
+        save_last: true
+optimizer:
+    value:
+        _target_: torch.optim.Adam
+        betas:
+            - 0.9
+            - 0.999
+        lr: 0.001
+        weight_decay: 0.0001
+scheduler:
+    value:
+        _target_: torch.optim.lr_scheduler.StepLR
+        gamma: 0.1
+        step_size: 20
+training:
+    value:
+        criterion: crossentropy
+        deterministic: true
+        print_freq: 50

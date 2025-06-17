@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=0 python train.py model=inception_resnet optimizer.lr=0.001 experiment.num_epochs=200 data.batch_size=256

@@ -1,0 +1,1 @@
+{"model_total_params":826482,"model_trainable_params":826482,"model_input_shape":[1,3,48,48],"_timestamp":1.7501320569759336e+09,"_runtime":0.752138803,"_step":0,"_wandb":{"runtime":5}}
