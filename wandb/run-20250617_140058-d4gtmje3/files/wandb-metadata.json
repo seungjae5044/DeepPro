@@ -1,0 +1,48 @@
+{
+  "os": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "python": "CPython 3.11.0",
+  "startedAt": "2025-06-17T05:00:58.754124Z",
+  "args": [
+    "model=inception_resnet",
+    "optimizer.lr=0.001",
+    "experiment.num_epochs=200",
+    "data.batch_size=256"
+  ],
+  "program": "/home/eunho/workspace/DeepPro/train.py",
+  "codePath": "train.py",
+  "git": {
+    "remote": "https://github.com/seungjae5044/DeepPro.git",
+    "commit": "db5cbca44195d73618c4ec4f17823c1dcd672f80"
+  },
+  "email": "eunho0675@gmail.com",
+  "root": "/home/eunho/workspace/DeepPro",
+  "host": "eunho",
+  "executable": "/home/eunho/anaconda3/envs/deep/bin/python",
+  "codePathLocal": "train.py",
+  "cpu_count": 8,
+  "cpu_count_logical": 16,
+  "gpu": "NVIDIA GeForce RTX 4070 SUPER",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "1081101176832",
+      "used": "77246160896"
+    }
+  },
+  "memory": {
+    "total": "66482122752"
+  },
+  "cpu": {
+    "count": 8,
+    "countLogical": 16
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA GeForce RTX 4070 SUPER",
+      "memoryTotal": "12878610432",
+      "architecture": "Ada",
+      "uuid": "GPU-fa84e377-12ab-da9e-c8b8-9dad94a857c3"
+    }
+  ],
+  "cudaVersion": "12.6"
+}

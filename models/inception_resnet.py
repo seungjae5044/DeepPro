@@ -1,42 +1,86 @@
 import torch
 import torch.nn as nn
 
+
+
+class SmallInceptionResNetA(nn.Module):
+    def __init__(self, in_channels=64, output_ch = 128, scale=0.3):
+        super().__init__()
+        self.scale = scale
+        mid_ch = in_channels//4
+
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(in_channels, mid_ch, 1),
+        )
+
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(in_channels, mid_ch, 1),
+            nn.Conv2d(mid_ch, mid_ch, 3, padding=1),
+        )
+
+        self.conv3 = nn.Sequential(
+            nn.Conv2d(in_channels, mid_ch, 1),
+            nn.Conv2d(mid_ch, mid_ch//2 * 3, 3, padding=1),
+            nn.Conv2d(mid_ch//2 * 3, mid_ch * 2, 3, padding=1),
+        )
+        self.downsample = nn.Conv2d(in_channels, output_ch, 1)
+        self.conv_linear = nn.Conv2d(in_channels, output_ch, 1)
+        self.relu = nn.ReLU()
+
+    def forward(self, x):
+        b1 = self.conv1(x)
+        b2 = self.conv2(x)
+        b3 = self.conv3(x)
+        out = torch.cat([b1, b2, b3], dim=1)
+        out = self.conv_linear(out)
+        x = self.downsample(x)
+        return self.relu(x + self.scale * out)
+
+
 class InceptionResNetModel(nn.Module):
     def __init__(self, num_classes=15, init_weights=True, dropout=0.3, fc_dropout=0.5):
         super(InceptionResNetModel, self).__init__()
         
         # Stem block
         self.stem = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2)
         )
         
         # Inception-ResNet blocks
-        self.inception1 = self._make_inception_resnet_block(64, [16, 24, 32, 16])
-        self.inception2 = self._make_inception_resnet_block(88, [32, 48, 64, 32])
+        #self.inception1 = self._make_inception_resnet_block(64, [16, 24, 32, 16])
+        #self.inception2 = self._make_inception_resnet_block(88, [32, 48, 64, 32])
+        self.inception1 = SmallInceptionResNetA(64, 88)
+        self.inception2 = SmallInceptionResNetA(88, 176)
         
         # Transition layers with Depthwise Separable Convolution
         self.transition1 = self._make_depthwise_separable_conv(176, 128, kernel_size=3, stride=2, padding=1)
         
-        self.inception3 = self._make_inception_resnet_block(128, [48, 64, 96, 48])
-        self.inception4 = self._make_inception_resnet_block(256, [64, 96, 128, 64])
+        #self.inception3 = self._make_inception_resnet_block(128, [48, 64, 96, 48])
+        #self.inception4 = self._make_inception_resnet_block(256, [64, 96, 128, 64])
+        self.inception3 = SmallInceptionResNetA(128, 256)
+        self.inception4 = SmallInceptionResNetA(256, 352)
         
         self.transition2 = self._make_depthwise_separable_conv(352, 256, kernel_size=3, stride=2, padding=1)
         
+        self.inception5 = SmallInceptionResNetA(256, 384)
+        self.inception6 = SmallInceptionResNetA(384, 512)
         # Classification head
-        self.final_bn = nn.BatchNorm2d(256)
+        self.final_bn = nn.BatchNorm2d(512)
         self.final_relu = nn.ReLU()
         self.global_pool = nn.AdaptiveAvgPool2d(1)
         self.dropout1 = nn.Dropout(dropout)
-        self.fc1 = nn.Linear(256, 128)
-        self.relu_fc = nn.ReLU()
-        self.dropout2 = nn.Dropout(fc_dropout)
-        self.fc2 = nn.Linear(128, num_classes)
+        #self.fc1 = nn.Linear(512, 256)
+        #self.relu_fc = nn.ReLU()
+        #self.dropout2 = nn.Dropout(fc_dropout)
+        self.fc2 = nn.Linear(512, num_classes)
         
         if init_weights:
             self._initialize_weights()
@@ -92,13 +136,14 @@ class InceptionResNetModel(nn.Module):
             nn.Conv2d(in_channels, channels[3], kernel_size=1)
         )
         
+
         # Output channels after concatenation
         total_channels = sum(channels)
         
         # 1x1 conv to match input channels for residual connection
         channel_adjust = None
         if total_channels != in_channels:
-            channel_adjust = nn.Conv2d(in_channels, total_channels, kernel_size=1, bias=False)
+            channel_adjust = nn.Conv2d(in_channels, total_channels, kernel_size=1)
         
         return nn.ModuleDict({
             'branches': nn.ModuleList([branch1, branch2, branch3, branch4]),
@@ -132,14 +177,18 @@ class InceptionResNetModel(nn.Module):
     def forward(self, x):
         x = self.stem(x)
         
-        x = self._forward_inception_resnet(x, self.inception1)
-        x = self._forward_inception_resnet(x, self.inception2)
+        
+        x = self.inception1(x)       
+        x = self.inception2(x)
         x = self.transition1(x)
         
-        x = self._forward_inception_resnet(x, self.inception3)
-        x = self._forward_inception_resnet(x, self.inception4)
+
+        x = self.inception3(x)
+        x = self.inception4(x)
         x = self.transition2(x)
         
+        x = self.inception5(x)
+        x = self.inception6(x)
         # Final activation for pre-activation structure
         x = self.final_bn(x)
         x = self.final_relu(x)
@@ -147,9 +196,9 @@ class InceptionResNetModel(nn.Module):
         x = self.global_pool(x)
         x = x.view(x.size(0), -1)
         x = self.dropout1(x)
-        x = self.fc1(x)
-        x = self.relu_fc(x)
-        x = self.dropout2(x)
+        #x = self.fc1(x)
+        #x = self.relu_fc(x)
+        #x = self.dropout2(x)
         x = self.fc2(x)
         
         return x
